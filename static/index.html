@@ -45,14 +45,13 @@ let ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var client = new EventSource("http://localhost:8080/canvas")
+var client = new EventSource("/canvas")
 client.onmessage = e => {
-  console.log("new message!");
   var img = new Image;
   img.onload = function() {
     ctx.drawImage(img, 0, 0); // Or at whatever offset you like
   };
-  img.src = strDataURI;
+  img.src = e.data;
 }
 
 
@@ -68,7 +67,7 @@ function draw(e) {
 }
 
 function sendImage() {
-  fetch('http://localhost:8080/state', {
+  fetch('/state', {
     method: 'POST',
     headers: {
       'Content-type': 'application/json'

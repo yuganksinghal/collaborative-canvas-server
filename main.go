@@ -19,7 +19,7 @@ type Message struct {
 }
 
 func (w *responseFlusher) Write(b []byte) (n int, err error) {
-	if n, err = fmt.Fprintf(w.ResponseWriter, "data %s\n\n", b); err != nil {
+	if n, err = fmt.Fprintf(w.ResponseWriter, "data: %s\n\n", b); err != nil {
 		return
 	}
 	w.Flush()
@@ -45,7 +45,6 @@ func main() {
 	base64Image := ""
 	http.HandleFunc("/canvas", sse(func(w http.ResponseWriter, r *http.Request) {
 		for {
-			fmt.Println("SSE EVENT: ", base64Image)
 			time.Sleep(time.Second * 5)
 			w.Write([]byte(base64Image))
 		}
