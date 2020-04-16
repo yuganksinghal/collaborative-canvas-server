@@ -9,82 +9,61 @@
   <meta name="googlebot" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
-  <script
-    type="text/javascript"
-    src="/js/lib/dummy.js"
-    
-  ></script>
-
-    <link rel="stylesheet" type="text/css" href="/css/result-light.css">
-
-
   <style id="compiled-css" type="text/css">
-      canvas {
-  box-sizing: border-box;
-  height: 100vh;
-  width: 100%;
-  touch-action: none;
-}
-
+    canvas {
+      box-sizing: border-box;
+      height: 100vh;
+      width: 100%;
+      touch-action: none;
+    }
   </style>
-
 </head>
 <body>
-    <canvas onmousemove="draw(event)" ontouchmove="draw(event)" onmouseup="sendImage()"></canvas>
+  <canvas onmousemove="draw(event)" ontouchmove="draw(event)" onmouseup="sendImage()"></canvas>
+  <script type="text/javascript">
+    a = [0, 0];
+    b = [0, 0];
+    let canvas = document.querySelector('canvas');
+    let ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    var client = new EventSource("/canvas")
+    client.onmessage = e => {
+      var img = new Image;
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0); // Or at whatever offset you like
+      };
+      img.src = e.data;
+    }
 
 
-  <!-- TODO: Missing CoffeeScript 2 -->
+    function draw(e) {
+      x = e.clientX;
+      y = e.clientY;
+      if (e.type === "touchmove") {
+        x = e.changedTouches[0].pageX;
+        y = e.changedTouches[0].pageY;
+      }
+      ctx.moveTo(0, 0);
+      a = [...b];
+      b = [x, y];
+      if (e.buttons != 0) {
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
+        ctx.stroke();
+      }
+    }
 
-  <script type="text/javascript">//<![CDATA[
-
-
-a = [0, 0];
-b = [0, 0];
-let canvas = document.querySelector('canvas');
-let ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-var client = new EventSource("/canvas")
-client.onmessage = e => {
-  var img = new Image;
-  img.onload = function() {
-    ctx.drawImage(img, 0, 0); // Or at whatever offset you like
-  };
-  img.src = e.data;
-}
-
-
-function draw(e) {
-  x = e.clientX;
-  y = e.clientY;
-  if (e.type === "touchmove") {
-    x = e.changedTouches[0].pageX;
-    y = e.changedTouches[0].pageY;
-  }
-  ctx.moveTo(0, 0);
-  a = [...b];
-  b = [x, y];
-  if (e.buttons != 0) {
-    ctx.moveTo(a[0], a[1]);
-    ctx.lineTo(b[0], b[1]);
-    ctx.stroke();
-  }
-}
-
-function sendImage() {
-  fetch('/state', {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    body: JSON.stringify({ "image": canvas.toDataURL() })
-  });
-}
-
-
-
-</script>
-</body>
+    function sendImage() {
+      fetch('/state', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({ "image": canvas.toDataURL() })
+      });
+    }
+    </script>
+  </body>
 </html>
