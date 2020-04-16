@@ -24,13 +24,14 @@
   box-sizing: border-box;
   height: 100vh;
   width: 100%;
+  touch-action: none;
 }
 
   </style>
 
 </head>
 <body>
-    <canvas onmousemove="draw(event)" onmouseup="sendImage()"></canvas>
+    <canvas onmousemove="draw(event)" ontouchmove="draw(event)" onmouseup="sendImage()"></canvas>
 
 
   <!-- TODO: Missing CoffeeScript 2 -->
@@ -56,9 +57,15 @@ client.onmessage = e => {
 
 
 function draw(e) {
+  x = e.clientX;
+  y = e.clientY;
+  if (e.type === "touchmove") {
+    x = e.changedTouches[0].pageX;
+    y = e.changedTouches[0].pageY;
+  }
   ctx.moveTo(0, 0);
   a = [...b];
-  b = [e.clientX, e.clientY];
+  b = [x, y];
   if (e.buttons != 0) {
     ctx.moveTo(a[0], a[1]);
     ctx.lineTo(b[0], b[1]);
